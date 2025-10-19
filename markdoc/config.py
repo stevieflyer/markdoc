@@ -37,6 +37,17 @@ class Config:
             pass
         return None
 
+    def _deep_to_dict(self, obj):
+        """Recursively convert objects to plain dict (handles Streamlit secrets)"""
+        if isinstance(obj, dict):
+            return {key: self._deep_to_dict(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [self._deep_to_dict(item) for item in obj]
+        elif hasattr(obj, "to_dict"):
+            return obj.to_dict()
+        else:
+            return obj
+
     def get(self, key: str, default: Any = None):
         """
         Get a configuration value using dot notation.
@@ -53,17 +64,24 @@ class Config:
         secrets = self._get_streamlit_secrets()
         if secrets is not None:
             keys = key.split(".")
-            value = dict(secrets)
+            value = secrets
             for k in keys:
-                if isinstance(value, dict):
-                    value = value.get(k)
-                    if value is None:
+                try:
+                    # Use attribute access for streamlit secrets objects
+                    if hasattr(value, k):
+                        value = getattr(value, k)
+                    elif hasattr(value, "__getitem__"):
+                        value = value[k]
+                    else:
+                        value = None
                         break
-                else:
+                except (KeyError, AttributeError):
                     value = None
                     break
+
             if value is not None:
-                return value
+                # Convert to plain Python types before returning
+                return self._deep_to_dict(value)
 
         # Fallback to local config
         keys = key.split(".")

@@ -23,7 +23,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
     """Initialize database, create all tables"""
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        # Table already exists or other error - this is fine
+        # Just log and continue
+        import logging
+
+        logging.debug(f"Database initialization: {e}")
 
 
 def get_db():

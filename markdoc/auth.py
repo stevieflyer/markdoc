@@ -14,6 +14,25 @@ def get_config_path():
     return Path(__file__).parent.parent / "auth_config.yaml"
 
 
+def _deep_convert_secrets_to_dict(obj):
+    """
+    Recursively convert Streamlit secrets object to plain Python dict.
+    This is needed because streamlit_authenticator tries to modify the dict.
+    """
+    if hasattr(obj, "to_dict"):
+        # If it has a to_dict method, use it
+        return obj.to_dict()
+    elif isinstance(obj, dict):
+        # Recursively convert nested dicts
+        return {key: _deep_convert_secrets_to_dict(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        # Recursively convert lists
+        return [_deep_convert_secrets_to_dict(item) for item in obj]
+    else:
+        # Return primitive types as-is
+        return obj
+
+
 def load_config():
     """
     Load authentication configuration.
@@ -24,8 +43,10 @@ def load_config():
     """
     # Try streamlit secrets first
     if hasattr(st, "secrets") and "auth" in st.secrets:
-        # Streamlit secrets structure: secrets["auth"] contains the auth config
-        return dict(st.secrets["auth"])
+        # Streamlit secrets are read-only, need deep conversion to mutable dict
+        # because streamlit_authenticator modifies the credentials dict
+        auth_secrets = st.secrets["auth"]
+        return _deep_convert_secrets_to_dict(dict(auth_secrets))
 
     # Fallback to local YAML file
     config_path = get_config_path()

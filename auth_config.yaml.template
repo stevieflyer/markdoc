@@ -13,6 +13,5 @@ credentials:
       password: changeme  # Change this password!
       roles:
       - admin
-pre-authorized:
+pre_authorized:
   emails: []
-

@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Config files with secrets
+config.toml
+auth_config.yaml
+
+# Streamlit cache (but keep config)
+.streamlit/cache/
+
+# Crawler output files (old scripts)
+*.csv
+!example*.csv
+
+# Logs
+*.log

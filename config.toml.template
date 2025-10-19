@@ -1,0 +1,9 @@
+[ai]
+openrouter_api_key = "your-openrouter-api-key-here"
+
+[jina]
+api_key = "your-jina-api-key-here"
+
+[database]
+DATABASE_URL = "sqlite:///./markdoc.db"
+

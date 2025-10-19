@@ -1,0 +1,18 @@
+cookie:
+  expiry_days: 30
+  key: your-secret-key-here  # Change this to a random string
+  name: markdoc-auth-cookie
+credentials:
+  usernames:
+    admin:
+      email: admin@example.com
+      failed_login_attempts: 0
+      first_name: Admin
+      last_name: User
+      logged_in: false
+      password: changeme  # Change this password!
+      roles:
+      - admin
+pre-authorized:
+  emails: []
+

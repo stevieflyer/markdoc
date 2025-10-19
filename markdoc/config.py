@@ -8,6 +8,7 @@ class Config:
 
     _instance: "Config | None" = None
     _config_data: dict[str, Any] = {}
+    _use_streamlit_secrets: bool = False
 
     def __new__(cls):
         if cls._instance is None:
@@ -25,6 +26,17 @@ class Config:
 
         return self
 
+    def _get_streamlit_secrets(self):
+        """Try to get streamlit secrets if available"""
+        try:
+            import streamlit as st
+
+            if hasattr(st, "secrets") and len(st.secrets) > 0:
+                return st.secrets
+        except (ImportError, FileNotFoundError):
+            pass
+        return None
+
     def get(self, key: str, default: Any = None):
         """
         Get a configuration value using dot notation.
@@ -32,7 +44,28 @@ class Config:
         Examples:
             config.get("ai.openrouter_api_key")
             config.get("jina.api_key")
+
+        Priority:
+            1. Streamlit secrets (for cloud deployment)
+            2. Local config file (for local development)
         """
+        # Try streamlit secrets first
+        secrets = self._get_streamlit_secrets()
+        if secrets is not None:
+            keys = key.split(".")
+            value = dict(secrets)
+            for k in keys:
+                if isinstance(value, dict):
+                    value = value.get(k)
+                    if value is None:
+                        break
+                else:
+                    value = None
+                    break
+            if value is not None:
+                return value
+
+        # Fallback to local config
         keys = key.split(".")
         value = self._config_data
 
@@ -71,13 +104,23 @@ def load_config(config_path: str | Path = None):
     Args:
         config_path: Path to the config file. If None, looks for config.toml
                      in the project root.
+
+    Note:
+        In Streamlit Cloud, if config.toml doesn't exist, it will use st.secrets instead.
     """
     if config_path is None:
         # Default to config.toml in project root
         project_root = Path(__file__).parent.parent
         config_path = project_root / "config.toml"
 
-    return CONFIG.load(config_path)
+    # Try to load local config file if it exists
+    # In Streamlit Cloud, this might not exist, which is fine
+    try:
+        return CONFIG.load(config_path)
+    except FileNotFoundError:
+        # File not found - probably in Streamlit Cloud
+        # Config.get() will automatically use st.secrets
+        return CONFIG
 
 
 # Auto-load configuration when module is imported

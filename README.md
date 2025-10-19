@@ -91,6 +91,15 @@ Edit `auth_config.yaml`:
 
 ⚠️ **Important**: These config files contain sensitive information and are excluded from git.
 
+### 3. Streamlit Cloud Deployment (Optional)
+
+If you want to deploy to Streamlit Cloud, see [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+Quick summary:
+- The app automatically detects Streamlit Cloud environment
+- Configure secrets through Streamlit Cloud's Web UI
+- Use `.streamlit/secrets.toml.template` as reference
+
 ## Usage
 
 ### Starting the Application

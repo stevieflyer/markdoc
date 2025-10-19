@@ -18,8 +18,9 @@ wheels/
 config.toml
 auth_config.yaml
 
-# Streamlit cache (but keep config)
+# Streamlit cache and secrets
 .streamlit/cache/
+.streamlit/secrets.toml
 
 # Crawler output files (old scripts)
 *.csv

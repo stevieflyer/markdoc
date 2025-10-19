@@ -15,7 +15,19 @@ def get_config_path():
 
 
 def load_config():
-    """Load authentication configuration from YAML file"""
+    """
+    Load authentication configuration.
+
+    Priority:
+        1. Streamlit secrets (for cloud deployment)
+        2. Local auth_config.yaml (for local development)
+    """
+    # Try streamlit secrets first
+    if hasattr(st, "secrets") and "auth" in st.secrets:
+        # Streamlit secrets structure: secrets["auth"] contains the auth config
+        return dict(st.secrets["auth"])
+
+    # Fallback to local YAML file
     config_path = get_config_path()
     with open(config_path) as file:
         config = yaml.load(file, Loader=SafeLoader)
